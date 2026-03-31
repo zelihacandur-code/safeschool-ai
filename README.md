@@ -15,7 +15,7 @@ https://youtube.com/shorts/rpQ_ZCCpDHc?si=1COBQ42ZdKYZVAPf
 4. Rehber paneline "rehber123" şifresiyle giriş yap
 5. Bildirimleri takip et
 ## Kullanılan Teknolojiler
--Yapay Zeka (AI): Google Gemini 1.5 Flash API (Metin analizi, ciddiyet skorlaması ve kategorizasyon için).
+-Yapay Zeka (AI): Google Gemini 1.5 Flash API (Metin analizi, ciddiyet skorlaması ve kategorizasyon için), Claude.
 -Frontend: HTML5 & CSS3 (Modern Koyu Tema/Dark Mode tasarımı).
 -Programlama Dili: JavaScript (ES6+).
 -Veri Yönetimi: Tarayıcı tabanlı localStorage (Kullanıcı tercihlerini ve bildirimleri yerel hafızada tutmak için).
