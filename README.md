@@ -24,7 +24,7 @@ https://youtube.com/shorts/rpQ_ZCCpDHc?si=1COBQ42ZdKYZVAPf
 ## Nasıl Çalıştırılır?
 Projeyi yerel bilgisayarınızda çalıştırmak için şu basit adımları izleyebilirsiniz:
 Projeyi İndirin: Bu GitHub reposunu bilgisayarınıza klonlayın veya .zip olarak indirin.
-git clone [REPO_LINKINIZ]
+git clone [https://github.com/zelihacandur-code/safeschool-ai]
 Dosyayı Açın: İndirdiğiniz klasör içerisindeki index.html dosyasına çift tıklayarak herhangi bir modern tarayıcıda (Chrome, Edge, Firefox) açın.
 API Anahtarı Yapılandırması: Uygulama, içinde gömülü olan Gemini API anahtarı ile doğrudan çalışmaya hazırdır.
 Test Edin: "Anonim Bildirim Formu" kısmına bir metin girin ve "Analiz Et" butonuna basarak yapay zeka sonuçlarını görün.
