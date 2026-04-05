@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeSchool AI — Güvenli Okul Bildiri Sistemi</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161920;
+    --surface2: #1e2230;
+    --border: rgba(255,255,255,0.07);
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --danger: #f75c5c;
+    --warning: #f7a84f;
+    --success: #4ff79e;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(79,142,247,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,142,247,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,15,20,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer;
+  }
+
+  .logo-shield {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .nav-tabs {
+    display: flex; gap: 4px;
+  }
+
+  .nav-tab {
+    padding: 7px 18px;
+    border-radius: 8px;
+    border: none; background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-tab:hover { color: var(--text); background: var(--surface2); }
+  .nav-tab.active { color: var(--accent); background: rgba(79,142,247,0.12); }
+
+  /* ── PAGES ── */
+  .page { display: none; position: relative; z-index: 1; }
+  .page.active { display: block; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 80px 32px 48px;
+    max-width: 720px; margin: 0 auto;
+    text-align: center;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px;
+    border: 1px solid rgba(79,142,247,0.3);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 40%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+
+  .hero-cta {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(79,142,247,0.3); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { background: var(--surface2); border-color: rgba(255,255,255,0.15); }
+
+  .btn-danger {
+    background: rgba(247,92,92,0.15);
+    border: 1px solid rgba(247,92,92,0.3);
+    color: var(--danger);
+  }
+  .btn-danger:hover { background: rgba(247,92,92,0.25); }
+
+  .btn-success {
+    background: rgba(79,247,158,0.15);
+    border: 1px solid rgba(79,247,158,0.3);
+    color: var(--success);
+  }
+  .btn-success:hover { background: rgba(79,247,158,0.25); }
+
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+
+  /* ── FORM PAGE ── */
+  .form-container {
+    max-width: 660px; margin: 48px auto;
+    padding: 0 24px 80px;
+  }
+
+  .form-header {
+    margin-bottom: 32px;
+  }
+
+  .form-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .form-header p { color: var(--muted); font-size: 0.925rem; line-height: 1.6; }
+
+  .anon-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px;
+    background: rgba(79,247,158,0.1);
+    border: 1px solid rgba(79,247,158,0.2);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    color: var(--success);
+    margin-top: 12px;
+  }
+
+  .form-group { margin-bottom: 20px; }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  textarea, input[type="text"], input[type="password"], select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+
+  textarea:focus, input:focus, select:focus {
+    border-color: rgba(79,142,247,0.5);
+    box-shadow: 0 0 0 3px rgba(79,142,247,0.08);
+  }
+
+  textarea { min-height: 140px; }
+
+  select option { background: var(--surface2); }
+
+  .char-count {
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 5px;
+  }
+
+  /* ── RESULT CARD ── */
+  .result-card {
+    margin-top: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    animation: slideUp 0.4s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-header {
+    padding: 20px 24px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .result-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .severity-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .severity-low    { background: rgba(79,247,158,0.12); color: var(--success); border: 1px solid rgba(79,247,158,0.25); }
+  .severity-medium { background: rgba(247,168,79,0.12); color: var(--warning); border: 1px solid rgba(247,168,79,0.25); }
+  .severity-high   { background: rgba(247,92,92,0.12);  color: var(--danger);  border: 1px solid rgba(247,92,92,0.25); }
+
+  .result-body { padding: 24px; }
+
+  .result-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-bottom: 20px;
+  }
+
+  .result-item label {
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  .result-item p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .score-display {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+  }
+
+  .score-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 100px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 1s ease;
+  }
+
+  .summary-box {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: #c8ccd8;
+    border-left: 3px solid var(--accent);
+  }
+
+  .tracking-box {
+    margin-top: 20px;
+    background: rgba(79,142,247,0.06);
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .tracking-code {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+  }
+
+  /* ── LOADING ── */
+  .loading-state {
+    text-align: center;
+    padding: 40px 24px;
+    display: none;
+  }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--surface2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-state p { color: var(--muted); font-size: 0.9rem; }
+
+  /* ── TRACKING PAGE ── */
+  .tracking-container {
+    max-width: 560px; margin: 64px auto;
+    padding: 0 24px;
+  }
+
+  /* ── TEACHER PAGE ── */
+  .teacher-container {
+    max-width: 900px; margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  .login-card {
+    max-width: 420px; margin: 80px auto;
+    padding: 0 24px;
+  }
+
+  .login-card h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .login-card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
+
+  /* ── REPORTS LIST ── */
+  .dashboard-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap; gap: 12px;
+  }
+
+  .dashboard-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px; margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .stat-card .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .stat-card .stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .filter-row {
+    display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .filter-btn:hover { background: var(--surface2); color: var(--text); }
+  .filter-btn.active { background: rgba(79,142,247,0.12); color: var(--accent); border-color: rgba(79,142,247,0.3); }
+
+  .report-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .report-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .report-item::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+
+  .report-item.high::before    { background: var(--danger); }
+  .report-item.medium::before  { background: var(--warning); }
+  .report-item.low::before     { background: var(--success); }
+
+  .report-item:hover { border-color: rgba(255,255,255,0.12); transform: translateX(2px); }
+
+  .report-item-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 10px; gap: 12px;
+  }
+
+  .report-item-title {
+    font-weight: 500;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .report-meta {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 10px; flex-wrap: wrap;
+  }
+
+  .tag {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .tag-category { background: rgba(124,92,252,0.12); color: #a78bfa; border: 1px solid rgba(124,92,252,0.2); }
+  .tag-status   { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .tag-date     { color: var(--muted); font-size: 0.78rem; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 100%; max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+
+  .modal-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  .modal-header h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; }
+
+  .modal-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .modal-close:hover { background: var(--surface2); color: var(--text); }
+
+  .modal-body { padding: 28px; }
+
+  .detail-section { margin-bottom: 24px; }
+
+  .detail-section label {
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .detail-text {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: #c8ccd8;
+  }
+
+  .status-actions {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 64px 24px;
+    color: var(--muted);
+  }
+
+  .empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; margin-bottom: 6px; color: var(--text); }
+
+  /* ── API KEY NOTICE ── */
+  .api-notice {
+    background: rgba(247,168,79,0.06);
+    border: 1px solid rgba(247,168,79,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 0.85rem;
+    color: var(--warning);
+    margin-bottom: 24px;
+    display: none;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 0.9rem;
+    z-index: 300;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s;
+    max-width: 320px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    nav { padding: 0 16px; }
+    .hero { padding: 48px 16px 32px; }
+    .form-container { padding: 0 16px 60px; }
+    .result-row { grid-template-columns: 1fr; }
+    .teacher-container { padding: 24px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav>
+  <div class="logo" onclick="showPage('home')">
+    <div class="logo-shield">🛡️</div>
+    SafeSchool AI
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')" id="tab-home">Ana Sayfa</button>
+    <button class="nav-tab" onclick="showPage('report')" id="tab-report">Bildirim Yap</button>
+    <button class="nav-tab" onclick="showPage('track')" id="tab-track">Takip Et</button>
+    <button class="nav-tab" onclick="showPage('teacher')" id="tab-teacher">Rehber Paneli</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HOME ═══════════════════ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-badge">🇹🇷 Türkiye için Yapay Zeka Çözümü</div>
+    <h1>Sesini Duyur,<br>Güvende Kal.</h1>
+    <p>Zorbalığa uğradın mı veya tanık mı oldun? Kimliğin gizli kalarak anonim bildirim yap. Yapay zeka bildirimi saniyeler içinde analiz eder, rehber öğretmene iletir.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="showPage('report')">📝 Anonim Bildirim Yap</button>
+      <button class="btn btn-outline" onclick="showPage('track')">🔍 Bildirimimi Takip Et</button>
+    </div>
+  </div>
+
+  <div style="max-width:900px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;">
+    <div class="card">
+      <div style="font-size:2rem;margin-bottom:12px;">🔒</div>
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;">Tam Anonimlik</h3>
+      <p style="color:var(--muted);font-size:0.9rem;line-height:1.6;">Adın, sınıfın, hiçbir kişisel bilgin saklanmaz. Sadece takip kodu ile erişilir.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:2rem;margin-bottom:12px;">⚡</div>
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;">Anlık AI Analizi</h3>
+      <p style="color:var(--muted);font-size:0.9rem;line-height:1.6;">Gemini yapay zekası bildirimi okur, ciddiyet skoru ve özet üretir — saniyeler içinde.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:2rem;margin-bottom:12px;">📊</div>
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;">Akıllı Önceliklendirme</h3>
+      <p style="color:var(--muted);font-size:0.9rem;line-height:1.6;">Yüksek riskli vakalar otomatik olarak listenin en üstüne çıkar. Rehber hiçbir vakayı kaçırmaz.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ REPORT ═══════════════════ -->
+<div class="page" id="page-report">
+  <div class="form-container">
+    <div class="form-header">
+      <h2>Anonim Bildirim Yap</h2>
+      <p>Yaşanan olayı olabildiğince detaylı anlat. Kimliğin kesinlikle gizli tutulacak.</p>
+      <div class="anon-badge">✓ Kimlik bilgisi toplanmıyor</div>
+    </div>
+
+    <div id="api-notice" class="api-notice">
+      ⚠️ Gemini API anahtarı ayarlanmamış. Lütfen bu dosyayı açıp <code>YOUR_GEMINI_API_KEY_HERE</code> kısmına anahtarını yaz.
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="form-group">
+        <label>Zorbalık Türü</label>
+        <select id="bullyType">
+          <option value="">Seç (isteğe bağlı)</option>
+          <option value="fiziksel">Fiziksel Zorbalık</option>
+          <option value="sozlu">Sözel / Duygusal Zorbalık</option>
+          <option value="siber">Siber Zorbalık</option>
+          <option value="sosyal">Sosyal Dışlanma</option>
+          <option value="diger">Diğer</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Olayı Anlat</label>
+        <textarea id="reportText" placeholder="Ne oldu? Nerede, ne zaman yaşandı? Kimler dahildi (isimsiz tanımla)? Ne kadar sürdü?..." oninput="updateCharCount()"></textarea>
+        <div class="char-count"><span id="charCount">0</span> / 2000</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="submitReport()" id="submitBtn" style="width:100%;justify-content:center;font-size:1rem;padding:14px;">
+        🔒 Anonim Gönder & Analiz Et
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" id="loadingState">
+      <div class="spinner"></div>
+      <p>Yapay zeka bildirimi analiz ediyor…</p>
+    </div>
+
+    <!-- Result -->
+    <div id="resultCard" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TRACK ═══════════════════ -->
+<div class="page" id="page-track">
+  <div class="tracking-container">
+    <div class="form-header">
+      <h2>Bildirimini Takip Et</h2>
+      <p>Gönderim sonrası aldığın takip kodunu girerek bildiriminin durumunu kontrol et.</p>
+    </div>
+
+    <div class="card">
+      <div class="form-group">
+        <label>Takip Kodu</label>
+        <input type="text" id="trackCode" placeholder="Örn: SS-A1B2C3" style="letter-spacing:0.1em;font-family:'Syne',sans-serif;">
+      </div>
+      <button class="btn btn-primary" onclick="trackReport()" style="width:100%;justify-content:center;">
+        🔍 Sorgula
+      </button>
+    </div>
+
+    <div id="trackResult" style="margin-top:20px;"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TEACHER ═══════════════════ -->
+<div class="page" id="page-teacher">
+
+  <!-- Login -->
+  <div id="teacher-login" class="login-card">
+    <div class="card">
+      <h2>Rehber Paneli</h2>
+      <p>Kurumsal şifrenizle giriş yapın</p>
+      <div class="form-group">
+        <label>Şifre</label>
+        <input type="password" id="teacherPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')teacherLogin()">
+      </div>
+      <button class="btn btn-primary" onclick="teacherLogin()" style="width:100%;justify-content:center;">
+        Giriş Yap
+      </button>
+      <p style="font-size:0.8rem;color:var(--muted);margin-top:14px;text-align:center;">Demo şifresi: <strong style="color:var(--text);">rehber123</strong></p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="teacher-dashboard" class="teacher-container" style="display:none;">
+    <div class="dashboard-header">
+      <h2>Vaka Yönetimi</h2>
+      <button class="btn btn-outline" onclick="teacherLogout()" style="font-size:0.85rem;padding:8px 16px;">Çıkış</button>
+    </div>
+
+    <div class="stats-row" id="statsRow"></div>
+
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterReports('all', this)">Tümü</button>
+      <button class="filter-btn" onclick="filterReports('high', this)">🔴 Yüksek Risk</button>
+      <button class="filter-btn" onclick="filterReports('medium', this)">🟡 Orta Risk</button>
+      <button class="filter-btn" onclick="filterReports('low', this)">🟢 Düşük Risk</button>
+      <button class="filter-btn" onclick="filterReports('beklemede', this)">⏳ Beklemede</button>
+      <button class="filter-btn" onclick="filterReports('incelemede', this)">🔍 İncelemede</button>
+      <button class="filter-btn" onclick="filterReports('cozuldu', this)">✅ Çözüldü</button>
+    </div>
+
+    <div class="report-list" id="reportList"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODAL ═══════════════════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h3>Vaka Detayı</h3>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TOAST ═══════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  ⚠️  BURAYA GEMİNİ API ANAHTARINI YAZ
+// ══════════════════════════════════════════════
+const GEMINI_API_KEY = "AIzaSyAFh1gkFzZ-XDR0UwrZNQeLlnZArTa6usE";
+// ══════════════════════════════════════════════
+
+// Storage key
+const STORAGE_KEY = "safeschool_reports";
+
+// ── Helpers ──────────────────────────────────
+function getReports() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+}
+
+function saveReports(reports) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+}
+
+function generateCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "SS-";
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+function formatDate(iso) {
+  return new Date(iso).toLocaleDateString("tr-TR", { day:"numeric", month:"long", year:"numeric", hour:"2-digit", minute:"2-digit" });
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// ── Navigation ────────────────────────────────
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+  document.getElementById("page-" + page).classList.add("active");
+  document.getElementById("tab-" + page).classList.add("active");
+
+  if (page === "teacher" && isLoggedIn()) {
+    renderDashboard();
+  }
+}
+
+// ── Char counter ──────────────────────────────
+function updateCharCount() {
+  const len = document.getElementById("reportText").value.length;
+  document.getElementById("charCount").textContent = len;
+}
+
+// ── API Key check ─────────────────────────────
+function hasApiKey() {
+  return GEMINI_API_KEY && GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY_HERE";
+}
+
+// ── Submit Report ─────────────────────────────
+async function submitReport() {
+  const text = document.getElementById("reportText").value.trim();
+  const type = document.getElementById("bullyType").value;
+
+  if (!text || text.length < 20) {
+    showToast("⚠️ Lütfen en az 20 karakter gir.");
+    return;
+  }
+
+  if (!hasApiKey()) {
+    document.getElementById("api-notice").style.display = "block";
+    showToast("❌ Gemini API anahtarı eksik!");
+    return;
+  }
+
+  const btn = document.getElementById("submitBtn");
+  const loading = document.getElementById("loadingState");
+  const resultDiv = document.getElementById("resultCard");
+
+  btn.disabled = true;
+  loading.style.display = "block";
+  resultDiv.style.display = "none";
+
+  try {
+    let analysis;
+    try {
+      analysis = await analyzeWithGemini(text, type);
+    } catch (apiError) {
+      const msg = (apiError?.message || "").toLowerCase();
+      const details = apiError?.details || {};
+      const status = details?.status;
+      const isQuota = status === 429 || msg.includes("kota") || msg.includes("quota") || msg.includes("rate limit");
+
+      if (!isQuota) throw apiError;
+
+      // API kotasi doluysa uygulamayi kullanilabilir tutmak icin basit yerel analiz fallback'i.
+      analysis = analyzeLocally(text, type);
+      showToast("⚠️ Gemini kotasi dolu: Gecici olarak yerel analiz kullanildi.");
+    }
+    const code = generateCode();
+
+    // Save to localStorage
+    const reports = getReports();
+    const report = {
+      id: Date.now(),
+      code,
+      text,
+      type: type || "Belirtilmedi",
+      score: analysis.score,
+      severity: analysis.severity,
+      category: analysis.category,
+      summary: analysis.summary,
+      emotion: analysis.emotion,
+      status: "beklemede",
+      date: new Date().toISOString()
+    };
+    reports.unshift(report);
+    saveReports(reports);
+
+    loading.style.display = "none";
+    resultDiv.style.display = "block";
+    resultDiv.innerHTML = buildResultHTML(analysis, code);
+
+    // Animate score bar
+    setTimeout(() => {
+      const fill = document.getElementById("scoreFill");
+      if (fill) fill.style.width = (analysis.score * 10) + "%";
+    }, 100);
+
+    document.getElementById("reportText").value = "";
+    document.getElementById("bullyType").value = "";
+    updateCharCount();
+    btn.disabled = false;
+
+  } catch (error) {
+    loading.style.display = "none";
+    btn.disabled = false;
+    showToast("❌ Hata: " + error.message);
+    console.error("Detayli Hata:", error, error?.details || null);
+  }
+}
+
+function analyzeLocally(text, type) {
+  const t = text.toLowerCase();
+  const highKeywords = ["tehdit", "darp", "vurdu", "bicak", "siddet", "zorla", "intihar", "yaral"];
+  const mediumKeywords = ["hakaret", "asagila", "disla", "kufur", "alay", "korkut", "itme", "siber"];
+  const emotionalKeywords = ["korkuyorum", "uzgun", "endise", "yalniz", "cok kotu", "agladim"];
+
+  let score = 3;
+  if (text.length > 120) score += 1;
+  if (text.length > 280) score += 1;
+  if (highKeywords.some(k => t.includes(k))) score += 4;
+  else if (mediumKeywords.some(k => t.includes(k))) score += 2;
+  if (emotionalKeywords.some(k => t.includes(k))) score += 1;
+  if (score > 10) score = 10;
+
+  const severity = score >= 8 ? "high" : score >= 5 ? "medium" : "low";
+  const categoryMap = {
+    fiziksel: "Fiziksel Zorbalik",
+    sozlu: "Sozel Zorbalik",
+    siber: "Siber Zorbalik",
+    sosyal: "Sosyal Dislanma",
+    diger: "Diger"
+  };
+  const category = categoryMap[type] || (t.includes("internet") || t.includes("mesaj") ? "Siber Zorbalik" : "Diger");
+  const emotion = t.includes("kork") ? "Korku" : t.includes("ofke") ? "Ofke" : t.includes("uzgun") ? "Uzuntu" : "Endise";
+  const urgency = severity === "high"
+    ? "hemen mudahale gerekli"
+    : severity === "medium"
+      ? "bu hafta gorusulmeli"
+      : "takipte tutulmali";
+
+  return {
+    score,
+    severity,
+    category,
+    summary: "Bildirim otomatik anahtar kelime analizi ile gecici olarak degerlendirildi. Rehber ogretmenin olay detayini manuel incelemesi onerilir.",
+    emotion,
+    urgency
+  };
+}
+
+// ── Gemini API ────────────────────────────────
+async function analyzeWithGemini(text, type) {
+  const typeNote = type ? `Zorbalık türü: ${type}.` : "";
+
+  const prompt = `Sen Türkiye'deki okullarda çalışan uzman bir psikolojik danışmansın. Aşağıdaki anonim öğrenci bildirimini analiz et.
+
+${typeNote}
+
+Bildirim:
+"""
+${text}
+"""
+
+Lütfen SADECE aşağıdaki JSON formatında yanıt ver, başka hiçbir şey yazma:
+{
+  "score": <0-10 arası tam sayı, ciddiyet puanı>,
+  "severity": "<low|medium|high>",
+  "category": "<Fiziksel Zorbalık|Sözel Zorbalık|Siber Zorbalık|Sosyal Dışlanma|Duygusal İstismar|Diğer>",
+  "summary": "<2-3 cümlelik Türkçe özet, aksiyon alınabilir bilgiler içersin>",
+  "emotion": "<Korku|Öfke|Üzüntü|Çaresizlik|Endişe|Karışık>",
+  "urgency": "<hemen müdahale gerekli|bu hafta görüşülmeli|takipte tutulmalı>"
+}`;
+
+  // Hesabinda aktif olan generateContent modellerini listeden bulup dene.
+  async function getAvailableModels() {
+    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`;
+    const res = await fetch(listUrl, { method: "GET" });
+    if (!res.ok) return [];
+    const payload = await res.json();
+    const models = payload.models || [];
+    return models
+      .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
+      .map(m => (m.name || "").replace(/^models\//, ""))
+      .filter(Boolean);
+  }
+
+  const preferredOrder = [
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite"
+  ];
+  const listedModels = await getAvailableModels();
+  let modelsToTry = [
+    ...preferredOrder.filter(m => listedModels.includes(m)),
+    ...listedModels.filter(m => !preferredOrder.includes(m))
+  ];
+  let data = null;
+  let lastError = null;
+
+  // ListModels bos donerse yine de olasi modelleri denemeye devam et.
+  if (!modelsToTry.length) modelsToTry = [...preferredOrder];
+
+  for (const modelName of modelsToTry) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 512 }
+      })
+    });
+
+    if (response.ok) {
+      data = await response.json();
+      lastError = null;
+      break;
+    }
+
+    let errBody = {};
+    try {
+      errBody = await response.json();
+    } catch (_) {}
+
+    const message = errBody.error?.message || "API hatasi";
+    const lowerMsg = message.toLowerCase();
+
+    lastError = {
+      model: modelName,
+      status: response.status,
+      message,
+      body: errBody
+    };
+
+    const isModelNotFound = response.status === 404;
+    const isQuotaError =
+      response.status === 429 ||
+      lowerMsg.includes("quota") ||
+      lowerMsg.includes("rate limit");
+
+    if (isQuotaError) {
+      const e = new Error("Gemini kotasi dolu veya billing aktif degil. Google AI Studio'da plan/kota ayarlarini kontrol et.");
+      e.details = lastError;
+      throw e;
+    }
+
+    // 404 model not found ise bir sonraki modeli dene.
+    if (!isModelNotFound) {
+      break;
+    }
+  }
+
+  if (!data) {
+    const e = new Error(lastError?.message || "Gemini API cagrisinda beklenmeyen hata.");
+    e.details = lastError;
+    throw e;
+  }
+
+  let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+
+  // Strip markdown code fences if present
+  raw = raw.replace(/```json\n?/gi, "").replace(/```\n?/gi, "").trim();
+
+  return JSON.parse(raw);
+}
+
+// ── Build Result HTML ─────────────────────────
+function buildResultHTML(a, code) {
+  const scoreColor = a.severity === "high" ? "var(--danger)" : a.severity === "medium" ? "var(--warning)" : "var(--success)";
+  const severityLabel = a.severity === "high" ? "Yüksek Risk" : a.severity === "medium" ? "Orta Risk" : "Düşük Risk";
+  const severityClass = "severity-" + a.severity;
+
+  return `
+  <div class="result-card">
+    <div class="result-header">
+      <h3>✅ Analiz Tamamlandı</h3>
+      <span class="severity-badge ${severityClass}">● ${severityLabel}</span>
+    </div>
+    <div class="result-body">
+      <div class="result-row">
+        <div class="result-item">
+          <label>Ciddiyet Skoru</label>
+          <div class="score-display" style="color:${scoreColor}">${a.score}/10</div>
+          <div class="score-bar">
+            <div class="score-fill" id="scoreFill" style="width:0%;background:${scoreColor}"></div>
+          </div>
+        </div>
+        <div class="result-item">
+          <label>Kategori</label>
+          <p style="margin-top:4px">${a.category}</p>
+          <div style="margin-top:8px"><label>Duygu Tonu</label><p>${a.emotion || "-"}</p></div>
+        </div>
+      </div>
+      <div class="result-item" style="margin-bottom:20px;">
+        <label>Aciliyet</label>
+        <p style="color:var(--warning)">${a.urgency || "-"}</p>
+      </div>
+      <div class="result-item">
+        <label>AI Özeti</label>
+        <div class="summary-box">${a.summary}</div>
+      </div>
+      <div class="tracking-box">
+        <div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Takip Kodun</div>
+          <div class="tracking-code">${code}</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:4px">Bu kodu sakla — bildirimini takip etmek için kullanacaksın.</div>
+        </div>
+        <button class="btn btn-outline" onclick="copyCode('${code}')" style="font-size:0.82rem;padding:8px 14px;">📋 Kopyala</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(() => showToast("✅ Kod kopyalandı!"));
+}
+
+// ── Track Report ──────────────────────────────
+function trackReport() {
+  const code = document.getElementById("trackCode").value.trim().toUpperCase();
+  if (!code) { showToast("⚠️ Takip kodu gir."); return; }
+
+  const reports = getReports();
+  const report = reports.find(r => r.code === code);
+  const div = document.getElementById("trackResult");
+
+  if (!report) {
+    div.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);padding:32px;">
+      Bu koda ait bildirim bulunamadı.
+    </div>`;
+    return;
+  }
+
+  const statusLabels = { beklemede: "⏳ Beklemede", incelemede: "🔍 İncelemede", cozuldu: "✅ Çözüldü" };
+  const statusColors = { beklemede: "var(--muted)", incelemede: "var(--warning)", cozuldu: "var(--success)" };
+
+  div.innerHTML = `
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;">${code}</h3>
+      <span style="color:${statusColors[report.status] || "var(--muted)"}; font-weight:600;">${statusLabels[report.status] || report.status}</span>
+    </div>
+    <div style="display:grid;gap:14px;">
+      <div><div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;">Gönderilme Tarihi</div>
+        <p style="font-size:0.9rem">${formatDate(report.date)}</p></div>
+      <div><div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;">Kategori</div>
+        <p>${report.category || report.type}</p></div>
+      <div><div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;">Durum Açıklaması</div>
+        <div class="summary-box">${report.note || "Bildiriminiz alındı. Rehber öğretmeniniz inceleyecek."}</div></div>
+    </div>
+  </div>`;
+}
+
+// ── Teacher Auth ──────────────────────────────
+function isLoggedIn() {
+  return sessionStorage.getItem("teacher_auth") === "1";
+}
+
+function teacherLogin() {
+  const pw = document.getElementById("teacherPassword").value;
+  if (pw === "rehber123") {
+    sessionStorage.setItem("teacher_auth", "1");
+    document.getElementById("teacher-login").style.display = "none";
+    document.getElementById("teacher-dashboard").style.display = "block";
+    renderDashboard();
+  } else {
+    showToast("❌ Hatalı şifre.");
+  }
+}
+
+function teacherLogout() {
+  sessionStorage.removeItem("teacher_auth");
+  document.getElementById("teacher-login").style.display = "block";
+  document.getElementById("teacher-dashboard").style.display = "none";
+  document.getElementById("teacherPassword").value = "";
+}
+
+// ── Dashboard ─────────────────────────────────
+let currentFilter = "all";
+
+function renderDashboard() {
+  const reports = getReports();
+
+  // Stats
+  const high   = reports.filter(r => r.severity === "high").length;
+  const medium = reports.filter(r => r.severity === "medium").length;
+  const solved = reports.filter(r => r.status === "cozuldu").length;
+
+  document.getElementById("statsRow").innerHTML = `
+    <div class="stat-card">
+      <div class="stat-value">${reports.length}</div>
+      <div class="stat-label">Toplam Bildirim</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--danger)">${high}</div>
+      <div class="stat-label">Yüksek Riskli</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--warning)">${medium}</div>
+      <div class="stat-label">Orta Riskli</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--success)">${solved}</div>
+      <div class="stat-label">Çözümlendi</div>
+    </div>`;
+
+  renderReportList(reports);
+}
+
+function filterReports(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  const reports = getReports();
+  renderReportList(reports);
+}
+
+function renderReportList(allReports) {
+  let reports = [...allReports];
+
+  if (currentFilter === "high")       reports = reports.filter(r => r.severity === "high");
+  else if (currentFilter === "medium") reports = reports.filter(r => r.severity === "medium");
+  else if (currentFilter === "low")    reports = reports.filter(r => r.severity === "low");
+  else if (currentFilter === "beklemede") reports = reports.filter(r => r.status === "beklemede");
+  else if (currentFilter === "incelemede") reports = reports.filter(r => r.status === "incelemede");
+  else if (currentFilter === "cozuldu") reports = reports.filter(r => r.status === "cozuldu");
+
+  // Sort: high first
+  reports.sort((a, b) => b.score - a.score);
+
+  const list = document.getElementById("reportList");
+
+  if (!reports.length) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>Bildirim Bulunamadı</h3>
+      <p>Bu filtreye uygun bildirim yok.</p>
+    </div>`;
+    return;
+  }
+
+  const statusLabels = { beklemede: "⏳ Beklemede", incelemede: "🔍 İncelemede", cozuldu: "✅ Çözüldü" };
+
+  list.innerHTML = reports.map(r => `
+    <div class="report-item ${r.severity}" onclick="openModal(${r.id})">
+      <div class="report-item-header">
+        <div class="report-item-title">${r.summary?.substring(0, 100)}...</div>
+        <div class="severity-badge severity-${r.severity}" style="white-space:nowrap;flex-shrink:0;">
+          ${r.score}/10
+        </div>
+      </div>
+      <div class="report-meta">
+        <span class="tag tag-category">${r.category || r.type}</span>
+        <span class="tag tag-status">${statusLabels[r.status] || r.status}</span>
+        <span class="tag-date">${formatDate(r.date)}</span>
+        <span style="font-size:0.78rem;color:var(--muted);margin-left:auto;">Kod: ${r.code}</span>
+      </div>
+    </div>`).join("");
+}
+
+// ── Modal ─────────────────────────────────────
+function openModal(id) {
+  const reports = getReports();
+  const report = reports.find(r => r.id === id);
+  if (!report) return;
+
+  const statusLabels = { beklemede: "⏳ Beklemede", incelemede: "🔍 İncelemede", cozuldu: "✅ Çözüldü" };
+
+  document.getElementById("modalBody").innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+      <span class="severity-badge severity-${report.severity}">
+        ● ${report.severity === "high" ? "Yüksek Risk" : report.severity === "medium" ? "Orta Risk" : "Düşük Risk"} — ${report.score}/10
+      </span>
+      <span class="tag tag-category">${report.category || report.type}</span>
+      <span class="tag tag-status">${statusLabels[report.status] || report.status}</span>
+    </div>
+
+    <div class="detail-section">
+      <label>Takip Kodu & Tarih</label>
+      <div style="display:flex;gap:16px;font-size:0.9rem;">
+        <span style="color:var(--accent);font-family:'Syne',sans-serif;font-weight:700;">${report.code}</span>
+        <span style="color:var(--muted)">${formatDate(report.date)}</span>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <label>AI Özeti</label>
+      <div class="detail-text" style="border-left:3px solid var(--accent);">${report.summary}</div>
+    </div>
+
+    <div class="detail-section">
+      <label>Orijinal Bildirim</label>
+      <div class="detail-text">${report.text}</div>
+    </div>
+
+    ${report.note ? `<div class="detail-section">
+      <label>Rehber Notu</label>
+      <div class="detail-text" style="border-left:3px solid var(--success);">${report.note}</div>
+    </div>` : ""}
+
+    <div class="detail-section">
+      <label>Sonuç Notu Ekle</label>
+      <textarea id="noteInput" placeholder="Görüşme notları, yapılan adımlar…" style="min-height:90px;">${report.note || ""}</textarea>
+    </div>
+
+    <div class="status-actions">
+      <button class="btn btn-outline" onclick="updateStatus(${id},'incelemede')" style="font-size:0.85rem;">🔍 İncelemede</button>
+      <button class="btn btn-success" onclick="updateStatus(${id},'cozuldu')" style="font-size:0.85rem;">✅ Çözüldü</button>
+      <button class="btn btn-danger" onclick="updateStatus(${id},'beklemede')" style="font-size:0.85rem;">⏳ Beklemede</button>
+    </div>`;
+
+  document.getElementById("modalOverlay").classList.add("open");
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById("modalOverlay")) closeModalDirect();
+}
+
+function closeModalDirect() {
+  document.getElementById("modalOverlay").classList.remove("open");
+}
+
+function updateStatus(id, status) {
+  const note = document.getElementById("noteInput")?.value || "";
+  const reports = getReports();
+  const idx = reports.findIndex(r => r.id === id);
+  if (idx === -1) return;
+  reports[idx].status = status;
+  if (note) reports[idx].note = note;
+  saveReports(reports);
+  closeModalDirect();
+  renderDashboard();
+  showToast("✅ Durum güncellendi.");
+}
+
+// ── Init ──────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  if (!hasApiKey()) {
+    // Will show notice only when trying to submit
+  }
+
+  // If already logged in, show dashboard
+  if (isLoggedIn()) {
+    document.getElementById("teacher-login").style.display = "none";
+    document.getElementById("teacher-dashboard").style.display = "block";
+  }
+
+  if (window.location.protocol === "file:") {
+    showToast("⚠️ Dosyayi file:// yerine yerel sunucu ile ac (ornek: Live Server).");
+  }
+});
+</script>
+</body>
+</html>
